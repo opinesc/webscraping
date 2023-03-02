@@ -75,5 +75,13 @@ if __name__ == '__main__':
     # quitamos mensaje inicial "Su privacidad.."
     # xpath //button/span[contains(text(),'ACEPTO')]
     driver.find_element(By.XPATH,"//button/span[contains(text(),'ACEPTO')]").click()
+    #   pulsamos entrar
+    driver.find_element(By.XPATH,"//*[@id='above-the-fold-container']/div[2]/div[1]/div[2]/a[1]/span").click()
+    # rellenamos los campos
+    driver.find_element(By.ID,"input-login").send_keys(USER_COMUNIO)   
+    driver.find_element(By.ID,"input-pass").send_keys(PASS_COMUNIO)
+    driver.find_element(By.ID,"login-btn-modal").click()
+
+
     input("Pulsar ENTER para Salir")
     driver.quit()
