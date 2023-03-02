@@ -11,6 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 # importamos la credenciales de Comunio
 from env import *
+import time
 
 def iniciar_chrome():
     """ Instalamos la versión del Chromedriver correspondiente """
@@ -66,6 +67,15 @@ def iniciar_chrome():
     
     return driver
 
+def obtener_jugadores(driver):
+    # pulsar alineación
+    # //*[@id='mainnavi']/div/div/nav/div[2]/a[3]
+    # driver.find_element(By.XPATH,"//*[@id='mainnavi']/div/div/nav/div[2]/a[3]").click()
+    print(driver)
+    # recorrer la tabla table_current_squad
+    # //*[@id="table_current_squad"]
+
+
 # MAIN
 
 if __name__ == '__main__':
@@ -81,6 +91,11 @@ if __name__ == '__main__':
     driver.find_element(By.ID,"input-login").send_keys(USER_COMUNIO)   
     driver.find_element(By.ID,"input-pass").send_keys(PASS_COMUNIO)
     driver.find_element(By.ID,"login-btn-modal").click()
+    time.sleep(3)
+    # obtener_jugadores(driver)
+    element = driver.find_element(By.XPATH,"//*[@id='mainnavi']/div/div/nav/div[2]/a[3]")
+    element.click()
+    # print(element)
 
 
     input("Pulsar ENTER para Salir")
