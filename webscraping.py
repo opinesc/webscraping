@@ -1,31 +1,27 @@
-# para instalar automáticamente chromedrive
-# pip install webdriver-manager
+#  Para instalar automáticamente chromedriver
 from webdriver_manager.chrome import ChromeDriverManager
-# Driver de Selenium
-# pip install selenium
+# driver de selenium
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-# Para modificar las opciones de webdriver
+# para modificar las opciones de webdriver en Chrome
 from selenium.webdriver.chrome.options import Options
-# Para definir el tipo de busqueda del elemento
+# para definir el tipo de busqueda del elemento
 from selenium.webdriver.common.by import By
-# Para esperar por elementos 
-from selenium.webdriver.support.ui import WebDriverWait
-# para condiciones en selenium
-from selenium.webdriver.support import expected_conditions as ec
-# excepción de timeout en selenium
-from selenium.common.exceptions import TimeoutException 
+from selenium.webdriver.support.ui import WebDriverWait # para esperar por elementos
+from selenium.webdriver.support import expected_conditions as ec # para condiciones
+from selenium.common.exceptions import TimeoutException # excepciones de timeout en selenium
 # importamos la credenciales de Comunio
 from env import *
 import time
 
 def iniciar_chrome():
-    """ Instalamos la versión del Chromedriver correspondiente """
+    """ inicia Chrome con los parámetros indicados y devuelve el driver """
+
+    #Instalamos la versión correspondiente. Nos devuelve la ruta
     ruta = ChromeDriverManager(path='./chromedriver').install()
-    
-    #  Opciones de Chrome
-    
-    options = Options()  # instanciamos las opciones de chrome
+
+    # Opciones: https://peter.sh/experiments/chromium-command-line-switches
+    options = Options()
     user_agent ="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
     # options.add_argument("--headless") # Ejecuta Chrome sin abrir la ventana
     options.add_argument(f'user-agent={user_agent}') # define el user agent
@@ -42,7 +38,6 @@ def iniciar_chrome():
     options.add_argument("--no-first-run") # Evita la ejecución de ciertas tareas
     options.add_argument("--no-proxy-server")
     options.add_argument("--disable-blink-feactures=AutomaticControlled")
-
     #Parametros a omitir en en inicio
 
     exp_opt=[
@@ -73,40 +68,38 @@ def iniciar_chrome():
     
     return driver
 
-def obtener_jugadores(driver):
-    # pulsar alineación
-    # //*[@id='mainnavi']/div/div/nav/div[2]/a[3]
-    driver.find_element(By.XPATH,"//*[@id='mainnavi']/div/div/nav/div[2]/a[3]").click()
-    time.sleep(3)
-    # recorrer la tabla table_current_squad
-    # //*[@id="table_current_squad"]
-    jugadores = driver.find_element(By.XPATH,"//*[@id='table_current_squad']").text
-    for jugador in jugadores:
-        print(jugador)
-        print('-------------------------')
-
-# MAIN
-
-if __name__ == '__main__':
-    driver = iniciar_chrome()
-    url="https://www.comunio.es"
-    driver.get(url)
-    # quitamos mensaje inicial "Su privacidad.."
-    # xpath //button/span[contains(text(),'ACEPTO')]
+def login_comunio():
+    """ Realizamos login por cookies y sino desde cero """
+    print("Login Comunio sin cookies")
+    driver.get('https://www.comunio.es')
+    # 
     driver.find_element(By.XPATH,"//button/span[contains(text(),'ACEPTO')]").click()
-    #   pulsamos entrar
-    # driver.find_element(By.XPATH,"//*[@id='above-the-fold-container']/div[2]/div[1]/div[2]/a[1]/span").click()
-    # rellenamos los campos
-    driver.find_element(By.ID,"input-login").send_keys(USER_COMUNIO)   
-    driver.find_element(By.ID,"input-pass").send_keys(PASS_COMUNIO)
-    driver.find_element(By.ID,"login-btn-modal").click()
-    time.sleep(3)
-    obtener_jugadores(driver)
+    # Pulsamos para login
+    elemento = wait.until(ec.element_to_be_clickable((By.XPATH, "//*[@id='above-the-fold-container']/div[2]/div[1]/div[2]/a[1]")))
+    elemento.click()
+    # Rellenamos los campos
+    elemento = wait.until(ec.visibility_of_element_located((By.ID, "input-login")))
+    elemento.send_keys(USER_COMUNIO)
+    elemento = wait.until(ec.visibility_of_element_located((By.ID, "input-pass")))
+    elemento.send_keys(PASS_COMUNIO)
+    elemento = wait.until(ec.element_to_be_clickable((By.ID, "login-btn-modal")))
+    elemento.click()
+    # wait.until(ec.visibility_of_element_located((By.ID, "input-login"))).send_keys(USER_COMUNIO)
+    # wait.until(ec.visibility_of_element_located((By.ID, "input-pass"))).send_keys(PASS_COMUNIO)
     
-    # element = driver.find_element(By.XPATH,"//*[@id='mainnavi']/div/div/nav/div[2]/a[3]")
-    # element.click()
-    # print(element)
+    # driver.find_element(By.ID,"input-login").send_keys(USER_COMUNIO)   
+    # driver.find_element(By.ID,"input-pass").send_keys(PASS_COMUNIO)
+    # driver.find_element(By.ID,"login-btn-modal").click()
 
+# MAIN ################################
+if __name__ == '__main__':
+    # inicioamos selenium
+    driver = iniciar_chrome()
+    # Configuramos el tiempo de espera para cargar elementos
+    wait = WebDriverWait(driver,10) # Tiempo de espera hasta que este disponible
 
-    input("Pulsar ENTER para Salir")
+    # nos logeamos en Comunio
+    res = login_comunio()
+
+    input("Pulsa ENTER para Salir")
     driver.quit()
