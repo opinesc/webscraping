@@ -13,6 +13,8 @@ from selenium.common.exceptions import TimeoutException # excepciones de timeout
 # importamos la credenciales de Comunio
 from env import *
 import time
+import sys
+import os
 
 def iniciar_chrome():
     """ inicia Chrome con los parámetros indicados y devuelve el driver """
@@ -78,21 +80,45 @@ def login_comunio():
     elemento = wait.until(ec.element_to_be_clickable((By.XPATH, "//*[@id='above-the-fold-container']/div[2]/div[1]/div[2]/a[1]")))
     elemento.click()
     # Rellenamos los campos
-    elemento = wait.until(ec.visibility_of_element_located((By.ID, "input-login")))
-    elemento.send_keys(USER_COMUNIO)
+    try:
+        elemento = wait.until(ec.visibility_of_element_located((By.ID, "input-login")))
+        elemento.send_keys(USER_COMUNIO)
+    except TimeoutException:
+        print('Error: Elemento no disponible')
+        return "ERROR"
     elemento = wait.until(ec.visibility_of_element_located((By.ID, "input-pass")))
     elemento.send_keys(PASS_COMUNIO)
     elemento = wait.until(ec.element_to_be_clickable((By.ID, "login-btn-modal")))
     elemento.click()
-    # wait.until(ec.visibility_of_element_located((By.ID, "input-login"))).send_keys(USER_COMUNIO)
-    # wait.until(ec.visibility_of_element_located((By.ID, "input-pass"))).send_keys(PASS_COMUNIO)
     
-    # driver.find_element(By.ID,"input-login").send_keys(USER_COMUNIO)   
-    # driver.find_element(By.ID,"input-pass").send_keys(PASS_COMUNIO)
-    # driver.find_element(By.ID,"login-btn-modal").click()
+def getPlantilla_comunio():
+    try:
+        elemento= wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, "a[title='Alineación']")))
+        elemento.click()
+    except TimeoutException:
+        print("Error: No se puede acceder a 'Alineación'")
+        return "Alineación: Error"
+
+def modo_de_uso():
+    mensaje  = f'Modo de uso:\n'
+    mensaje += f'    {os.path.basename(sys.executable)} {sys.argv[0]} [opciones]\n\n'
+    mensaje += f'    opciones:\n'
+    mensaje += f'       -p obtener plantilla\n'
+    mensaje += f'       -p obtener plantilla\n'
+    mensaje += f'       -p obtener plantilla\n\n'
+    mensaje += f'    Ejemplos:\n'
+    mensaje += f'       {os.path.basename(sys.executable)} {sys.argv[0]} -p \n'
+    # mensaje += f'       {os.path.basename(sys.executable)} {sys.argv[0]} -c'
+
+    return mensaje
 
 # MAIN ################################
 if __name__ == '__main__':
+    # control de parametros
+    if len(sys.argv) > 3:
+        print(modo_de_uso())
+        sys.exit(1)
+    
     # inicioamos selenium
     driver = iniciar_chrome()
     # Configuramos el tiempo de espera para cargar elementos
@@ -100,6 +126,11 @@ if __name__ == '__main__':
 
     # nos logeamos en Comunio
     res = login_comunio()
-
+    if res=="ERROR":
+        input("Pulsa ENTER para salir....") # pulsamos para estudiar el error
+        driver.quit() # Cerramos chrome
+        sys.exit(1) # Salimos del programa con error
+    # Obtener la plantilla
+    res = getPlantilla_comunio()
     input("Pulsa ENTER para Salir")
     driver.quit()
