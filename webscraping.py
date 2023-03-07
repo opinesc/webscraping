@@ -97,7 +97,13 @@ def getPlantilla_comunio():
         elemento.click()
     except TimeoutException:
         print("Error: No se puede acceder a 'Alineación'")
-        return "Alineación: Error"
+        return "Alineación: Error Acceso"
+    # plantilla={}
+    table = wait.until(ec.visibility_of_element_located((By.XPATH,"//table[@id='table_current_squad']/tbody/tr")))
+    # tabla = wait.until(ec.visibility_of_element_located((By.ID,'table_current_squad')))
+    # for fila in tabla:
+    #     print(fila)
+    return driver.page_source
 
 def modo_de_uso():
     mensaje  = f'Modo de uso:\n'
@@ -132,5 +138,6 @@ if __name__ == '__main__':
         sys.exit(1) # Salimos del programa con error
     # Obtener la plantilla
     res = getPlantilla_comunio()
+    print(f'{res}\n')
     input("Pulsa ENTER para Salir")
     driver.quit()
