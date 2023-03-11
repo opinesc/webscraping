@@ -10,6 +10,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # para esperar por elementos
 from selenium.webdriver.support import expected_conditions as ec # para condiciones
 from selenium.common.exceptions import TimeoutException # excepciones de timeout en selenium
+# beautifulsoup4
+from bs4 import BeautifulSoup
 # importamos la credenciales de Comunio
 from env import *
 import time
@@ -103,7 +105,15 @@ def getPlantilla_comunio():
     # tabla = wait.until(ec.visibility_of_element_located((By.ID,'table_current_squad')))
     # for fila in tabla:
     #     print(fila)
-    return driver.page_source
+    imagen =[ ]
+    source = BeautifulSoup(driver.page_source,"html.parser")
+    tabla = source.find("table",{"id" : "table_current_squad"})
+    rows = tabla.findAll('tr')
+    for row in rows:
+        tds = row.findAll('td')
+        # imagen = tds.findAll("img")
+        puesto = tds.findAll('img')
+        print(f'{puesto}\n')
 
 def modo_de_uso():
     mensaje  = f'Modo de uso:\n'
@@ -138,6 +148,6 @@ if __name__ == '__main__':
         sys.exit(1) # Salimos del programa con error
     # Obtener la plantilla
     res = getPlantilla_comunio()
-    print(f'{res}\n')
+    # print(f'{res}\n')
     input("Pulsa ENTER para Salir")
     driver.quit()
